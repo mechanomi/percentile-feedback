@@ -133,7 +133,7 @@ Alternatively, configure Emacs to run this command every time you save the file.
 
 (defun process-org-file ()
   (when (string-equal (buffer-file-name) my-org-file)
-    (shell-command (concat "python " my-org-py " --convert-org " my-org-file))
+    (shell-command (concat "python " " my-org-file))
     (message "Processed org file")))
 
 (add-hook 'after-save-hook 'process-org-file)
