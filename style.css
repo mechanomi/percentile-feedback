@@ -1,0 +1,47 @@
+body {
+  font: 10px sans-serif;
+}
+
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #fff;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+body { margin: 12px; font: 18px "Helvetica Neue", Helvetica;
+  font-weight: 300; color: #333; }
+p { text-align: center; font-weight: 400; color: #777; }
+/* svg { border: 1px solid green; } */
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #999;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  fill: #999;
+  font-weight: 400;
+  font-size: 12px;
+}
+.axis text.label {
+  fill: #ccc;
+}
+text.pr {
+  font-size: 32px;
+  fill: #6a6;
+}
+.line {
+  fill: none;
+  stroke: #6a6;
+  stroke-width: 4px;
+}

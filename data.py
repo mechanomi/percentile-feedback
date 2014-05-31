@@ -1,243 +1,191 @@
 #!/usr/bin/env python
 
-import argparse
+print "This is a test version of data.py"
+
 import datetime
-import os.path
+import itertools
 import re
 import sys
+import time
 
-def periods(now, duration, continuous=False):
-    results = []
+import couchdb
 
-    date = now.strftime("%Y-%m-%d")
-    completed = (now.hour * 3600) + (now.minute * 60) + now.second
-    started = completed - duration
+# >>> import couchdb
+# >>> couch = couchdb.Server()
+# >>> test = couch.create("test")
+# >>> test.save({"example": 123})
 
-    if started < 0:
-        yesterday = now - datetime.timedelta(days=1)
-        yesterdate = yesterday.strftime("%Y-%m-%d")
-        yesterstarted = (3600 * 24) - abs(started)
-        yestercompleted = 3600 * 24
-        started = 0
-        args = (yesterdate, yesterstarted, yestercompleted)
-        results.append("%s %s %s" % args)
+# def offset(now=None):
+#     if now is None:
+#         now = datetime.datetime.now()
+#     rounded = now.replace(microsecond=0)
+#     unixtime = time.mktime(rounded.timetuple())
+#     utc = datetime.datetime.utcfromtimestamp(unixtime)
+#     return (rounded - utc).total_seconds()
 
-    if continuous:
-        completed = "-"
-    args = (date, started, completed)
-    results.append("%s %s %s" % args)
-    return results
+database_name = "pf-periods"
 
-# def add_period_to_log(log, period):
-#     # log = log filename
-#     # period = period in seconds
-#     ...
-
-def process_log_lines(dates, lines):
-    # modifies dates (a dict) in place
-    # lines = iterable of lines
-    for line in lines:
-        if line.count(" ") == 2:
-            line = line.rstrip()
-            date, started, completed = line.split(" ")
-            if date not in dates:
-                dates[date] = []
-            dates[date].append((started, completed))
-
-# python format is:
-# dates["YYYY-MM-DD"] = [("SECS-START", "SECS-COMPLETE"), ...]
-# e.g. {"2014-04-03": [("1000", "2000")]}
-
-def log_to_python(log):
-    # log = log filename
-    dates = {}
-    with open(log) as f:
-        process_log_lines(dates, f)
-    return dates
-
-# python_to_log?
-
-def org_to_python(org):
-    # org = org filename
-    dates = {}
-    log = []
-    with open(org) as f:
-        for line in sorted(f):
-            if "CLOCK" not in line:
-                continue
-            continuous = False
-            try:
-                tstr = re.compile(r"\[([^\]]+)\]")
-                sc = tstr.findall(line)
-                strptime = datetime.datetime.strptime
-                started = strptime(sc[0], "%Y-%m-%d %a %H:%M")
-                if len(sc) > 1:
-                    completed = strptime(sc[1], "%Y-%m-%d %a %H:%M")
-                else:
-                    completed = datetime.datetime.now()
-                    continuous = True
-            except:
-                continue
-            if completed > started:
-                delta = completed - started
-                if delta.days:
-                    # Error, continue! TODO: Detect overlaps
-                    print "Warning, unclosed value:", line.strip()
-                    continue
-                secs = delta.seconds
-                log.extend(periods(completed, secs, continuous))
-
-    process_log_lines(dates, log)
-    return dates
-
-def iso2js(date):
-    # helper function for javascript_object
-    y, m, d = date.split("-")
-    return "%s, %s, %s" % (int(y), int(m) - 1, int(d))
-
-def javascript_object(date, pairs):
-    starts = []
-    stops = []
-    for (start, stop) in pairs:
-        starts.append(start)
-        if stop != "-":
-            stops.append(stop)
-    obj = "{date: new Date(%s), starts: [%s], stops: [%s]}"
-    starts = ", ".join([start + ".0" for start in starts])
-    stops = ", ".join([stop + ".0" for stop in stops])
-    return obj % (iso2js(date), starts, stops)
-
-def compensate(dates, midnight):
-    # dates = python format
-    # midnight = offset from midnight in positive seconds
-    def yesterday(day):
-        y = datetime.datetime.strptime(day, "%Y-%m-%d")
-        y = y - datetime.timedelta(days=1)
-        return y.strftime("%Y-%m-%d")
-
-    compensated = {}
-    for day in dates:
-        for (started, completed) in dates[day]:
-            started = int(started)
-            sday = day
-            if started < midnight:
-                started = (3600 * 24) - midnight + started
-                sday = yesterday(day)
-            else:
-                started = started - midnight
-
-            cday = day
-            if completed != "-":
-                completed = int(completed)
-                if completed < midnight:
-                    completed = (3600 * 24) - midnight + completed
-                    cday = yesterday(day)
-                else:
-                    completed = completed - midnight
-
-            if sday not in compensated:
-                compensated[sday] = []
-
-            # Adding ints for now, so that we can sort them afterwards
-            if sday != cday:
-                if cday not in compensated:
-                    compensated[cday] = []
-                compensated[sday].append((started, 24 * 3600))
-                compensated[cday].append((0, completed))
-            else:
-                compensated[sday].append((started, completed))
-
-    # Sort the items, and stringify them
-    for day in compensated:
-        ordered = sorted(compensated[day])
-        compensated[day] = [(str(s), str(c)) for (s, c) in ordered]
-    return compensated
-
-def python_to_javascript(dates, midnight=None):
-    lines = []
-
-    if midnight is not None:
-        dates = compensate(dates, midnight=midnight)
-        hours = midnight // 3600
-        seconds = midnight % 3600
-        epoch = "%02i:%02i" % (hours, seconds // 60)
+def iso_offset(seconds, strict=False):
+    if seconds < 0:
+        seconds = abs(seconds)
+        sign = "-"
     else:
-        epoch = "00:00"
-    lines.append("var midnight = \"%s\";" % epoch)
-    lines.append("var midnight_seconds = %s;" % (midnight or 0))
+        sign = "+"
 
-    now = datetime.datetime.now()
-    if midnight is not None:
-        now = now - datetime.timedelta(seconds=midnight)
-    today = now.strftime("%Y-%m-%d")
-    if today in dates:
-        obj = javascript_object(today, dates[today])
-        del dates[today]
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+
+    if (hours > 99) or (hours < -99):
+        raise ValueError("Unexpectedly large timezone offset from UTC")
+    if (minutes > 60) or (minutes < 0):
+        # This shouldn't happen, because of mathematics
+        raise ValueError("Unexpected number of minutes")
+    if seconds and strict:
+        raise ValueError("Timezone offset is not rounded to a minute")
+
+    return "%s%02i:%02i" % (sign, hours, minutes)
+
+def timeinfo(now):
+    rounded = now.replace(microsecond=0)
+    unixtime = int(time.mktime(rounded.timetuple()))
+    utc = datetime.datetime.utcfromtimestamp(unixtime)
+    offset = (rounded - utc).total_seconds()
+    return unixtime - offset, offset
+
+def isounix(now=None):
+    if now is None:
+        now = datetime.datetime.now()
+    unixtime, offset = timeinfo(now)
+    tz = iso_offset(offset)
+    return now.strftime("%Y-%m-%dT%H:%M:%S") + tz, unixtime
+
+def normalised_datetimes(started, completed):
+    started = started.replace(microsecond=0)
+    completed = completed.replace(microsecond=0)
+    return started, completed
+
+def org_periods(org_filename):
+    def clock_lines(f):
+        # yield from (line for line in f if "CLOCK" in line)
+        for line in f:
+            if "CLOCK" in line:
+                yield line
+
+    def clock_to_datetime(clock):
+        return datetime.datetime.strptime(clock, "%Y-%m-%d %a %H:%M")
+
+    clock_regexp = re.compile(r"\[([^\]]+)\]")
+    def line_to_datetimes(line):
+        clocks = clock_regexp.findall(line)
+        return [clock_to_datetime(clock) for clock in clocks]
+
+    def datetimes_to_span(datetimes):
+        started = datetimes.pop(0)
+        try: completed = datetimes.pop(0)
+        except IndexError:
+            completed = datetime.datetime.now()
+        return started, completed
+
+    with open(org_filename) as f:
+        for line in clock_lines(f):
+            datetimes = line_to_datetimes(line)
+            if len(datetimes) not in {1, 2}:
+                # Corrupt line. Warn the user?
+                continue
+
+            started, completed = datetimes_to_span(datetimes)
+            if completed <= started:
+                # < means corrupt line. Warn the user?
+                # = means a 0 duration, which we ignore
+                continue
+
+            yield normalised_datetimes(started, completed)
+
+def check_overlaps(periods, discard=False):
+    def pairwise(iterable):
+        a, b = itertools.tee(iterable)
+        next(b, None)
+        return itertools.izip(a, b)
+
+    for a, b in pairwise(sorted(periods)):
+        previous_completed = a[1]
+        next_started = b[0]
+        if previous_completed <= next_started:
+            yield a
+        elif discard is False:
+            yield a[0], b[0]
+        elif discard is not True:
+            raise ValueError("Expected boolean, discard")
+    yield b
+
+def check_durations(periods, discard=True):
+    for (started, completed) in periods:
+        if (completed - started).total_seconds() < 86400: # <=?
+            yield started, completed
+        elif discard is False:
+            completed = started + datetime.timedelta(seconds=86400)
+            completed = completed.replace(microsecond=0)
+            yield started, completed
+        elif discard is not True:
+            raise ValueError("Expected boolean, discard")
+
+def datetimes_to_period(datetimes):
+    started, completed = datetimes
+    iso, unix = isounix(started)
+    utc = datetime.datetime.fromtimestamp(unix).strftime("%Y-%m-%dT%H:%M:%SZ")
+    duration = (completed - started).total_seconds()
+    return utc, iso, int(duration) # floor of duration
+
+# check CouchDB db already exists
+#    otherwise, create it
+# store data in db
+# one doc per period?
+
+def store_in_database(couch, periods):
+    if database_name not in couch: # connection error would come here
+        db = couch.create(database_name)
     else:
-        obj = javascript_object(today, [])
-    lines.append("var today_wr = %s;" % obj)
+        db = couch[database_name]
 
-    lines.append("var updateInterval;")
-    lines.append("var refresh_delay = 43733.87873;")
-    lines.append("var past_wrs = [];")
+    p = []
+    for (utc, iso, duration) in periods:
+        doc = couchdb.Document(
+            _id=utc,
+            timestamp=iso,
+            duration=duration,
+            category=[]
+        )
+        p.append(doc)
 
-    for date in sorted(dates):
-        obj = javascript_object(date, dates[date])
-        lines.append("past_wrs.push(%s);" % obj)
+    db.update(p)
 
-    return "\n".join(lines)
+def read_from_database(couch):
+    if database_name not in couch:
+        return
+    db = couch[database_name]
+    return db
 
-def log_to_javascript(log, midnight=None):
-    dates = log_to_python(log)
-    return python_to_javascript(dates, midnight=midnight)
+def parse_org(org_filename):
+    periods = org_periods(org_filename)
+    periods = check_overlaps(periods)
+    periods = check_durations(periods)
+    for period in periods:
+        # Nomenclature needs sorting
+        yield datetimes_to_period(period)
 
-def org_to_javascript(org, midnight=None):
-    dates = org_to_python(org)
-    return python_to_javascript(dates, midnight=midnight)
+def test():
+    couch = couchdb.Server()
+    if database_name in couch:
+        del couch[database_name]
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-m", "--midnight", help="Set midnight, as HH:MM")
-    parser.add_argument("-l", "--convert-log", metavar="PATH",
-                        help="Convert a log file to data.js")
-    parser.add_argument("-o", "--convert-org", metavar="PATH",
-                        help="Convert an org-mode file to data.js")
-    parser.add_argument("-p", "--log-period", metavar="SECONDS",
-                        help="Log a period, and update data.js")
-    args = parser.parse_args()
+    periods = parse_org(sys.argv[1])
+    store_in_database(couch, periods)
 
-    midnight = None
-    if args.midnight is not None:
-        hours, minutes = args.midnight.split(":")
-        midnight = (int(hours) * 3600) + (int(minutes) * 60)
-
-    directory = os.path.dirname(os.path.realpath(__file__))
-
-    if args.log_period is not None:
-        periods_txt = os.path.join(directory, "periods.txt")
-        with open(periods_txt, "a") as f:
-            now = datetime.datetime.now()
-            duration = int(args.log_period)
-            for period in periods(now, duration):
-                f.write(period + "\n")
-
-        if args.convert_log is None:
-            args.convert_log = periods_txt
-
-    if args.convert_log is not None:
-        js = log_to_javascript(args.convert_log, midnight=midnight)
-        with open(os.path.join(directory, "data.js"), "w") as f:
-            f.write(js)
-        sys.exit()
-
-    if args.convert_org is not None:
-        js = org_to_javascript(args.convert_org, midnight=midnight)
-        with open(os.path.join(directory, "data.js"), "w") as f:
-            f.write(js)
-        sys.exit()
-
-    parser.print_help()
-    sys.exit(2)
+    data = read_from_database(couch)
+    print len(data), "items stored"
+    # for isotime in sorted(data):
+    #     if not isotime.startswith("_"):
+    #         print isotime, data[isotime]
 
 if __name__ == "__main__":
-    main()
+    test()
