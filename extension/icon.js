@@ -1,3 +1,27 @@
+function unixtime() {
+  return Math.floor(Date.now() / 1000);
+}
+
+function loadJS(page, name, interaction) {
+  var req = new XMLHttpRequest();
+  var data = page.replace(/([^\/]+)?$/, "") + name;
+  req.open("GET", data + "?" + unixtime(), false);
+  try { req.send(null); }
+  catch (exception) {
+    req.status === null;
+  }
+
+  if (req.status === 200) {
+    console.log("Reloading " + name);
+    eval.call(window, req.responseText);
+  } else {
+    if (interaction) {
+      alert("You need to set a page in extension options!");
+      return;
+    }
+  }
+}
+
 function updateIcon(interaction) {
   var icon = document.createElement("canvas");
   icon.setAttribute("height", "19");
@@ -5,8 +29,12 @@ function updateIcon(interaction) {
   context = icon.getContext("2d");
   var page = localStorage["page"] || ".";
 
+  loadJS(page, "jquery.min.js", interaction);
+  loadJS(page, "pouchdb.min.js", interaction);
+  loadJS(page, "d3.min.js", interaction);
+
   var req1 = new XMLHttpRequest();
-  var data = page.replace(/([^\/]+)?$/, "") + "data.js";
+  var data = page.replace(/([^\/]+)?$/, "") + "chart.js";
   req1.open("GET", data + "?" + unixtime(), false);
   try { req1.send(null); }
   catch (exception) {
@@ -14,7 +42,7 @@ function updateIcon(interaction) {
   }
 
   if (req1.status === 200) {
-    console.log("Reloading data.js");
+    console.log("Reloading chart.js");
     eval.call(window, req1.responseText);
   } else {
     if (interaction) {
@@ -32,38 +60,23 @@ function updateIcon(interaction) {
     return;
   }
 
-  // This must be loaded because it captures the variables from data.js
-  // Probably ought to pass them as arguments instead
-  console.log("loading plot.js");
-  var req2 = new XMLHttpRequest();
-  var plot = page.replace(/([^\/]+)?$/, "") + "plot.js";
-  req2.open("GET", plot, false);
-  try { req2.send(null); }
-  catch (exception) {
-    req2.status === null;
+  pf.action = function(views, data) {
+    if (data.pr < 50) {
+      context.fillStyle = "#c00";
+      context.fillRect(0, 0, 19, 19);
+      context.fillStyle = "#fee";
+    } else {
+      context.fillStyle = "#090";
+    }
+    context.textAlign = "center";
+    context.font = "9px Verdana";
+    context.fillText("PR", 9.5, 9);
+    context.fillText(data.pr.toFixed(0), 9.5, 17);
+
+    var imageData = context.getImageData(0, 0, 19, 19);
+    chrome.browserAction.setIcon({imageData: imageData});
   }
-
-  if (req2.status === 200) {
-    eval.call(window, req2.responseText);
-  }
-
-  // This isn't the best interface
-  var pr = processData();
-
-  if (pr < 50) {
-    context.fillStyle = "#c00";
-    context.fillRect(0, 0, 19, 19);
-    context.fillStyle = "#fee";
-  } else {
-    context.fillStyle = "#090";
-  }
-  context.textAlign = "center";
-  context.font = "9px Verdana";
-  context.fillText("PR", 9.5, 9);
-  context.fillText(pr.toFixed(0), 9.5, 17);
-
-  var imageData = context.getImageData(0, 0, 19, 19);
-  chrome.browserAction.setIcon({imageData: imageData});
+  pf.compute();
   return true;
 }
 
@@ -84,10 +97,6 @@ function openPage() {
 }
 
 chrome.browserAction.onClicked.addListener(openPage);
-
-function unixtime() {
-  return Math.floor(Date.now() / 1000);
-}
 
 // Could probably do a fancy thing to poll every few seconds
 function updateIconLoop() {

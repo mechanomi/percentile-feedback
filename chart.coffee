@@ -1,4 +1,13 @@
+root = exports ? this
+root.pf = {}
+
 chart_local_start_hour = 6.0
+
+unixtime_now = () ->
+  new Date().getTime() / 1000
+
+# This is a debug variable
+loaded = unixtime_now()
 
 floor_to_seconds = (unixtime, seconds) ->
   unixtime - (unixtime % seconds)
@@ -11,9 +20,6 @@ floor_to_hour = (unixtime) ->
 
 floor_to_day = (unixtime) ->
   floor_to_seconds unixtime, 86400
-
-unixtime_now = () ->
-  new Date().getTime() / 1000
 
 isotime_to_unixtime = (isotime) ->
   new Date(isotime).getTime() / 1000
@@ -31,18 +37,17 @@ format_seconds = (seconds) ->
   else
     "#{ days }d, #{ hours }hrs #{ minutes }m"
 
-loaded = unixtime_now()
-
 mean_percentile_rank = (values, value) ->
   strict = values[..].filter (v) -> v < value
   weak = values[..].filter (v) -> v <= value
   (strict.length + weak.length) * 50 / values.length
 
 timezone = -(new Date().getTimezoneOffset() / 60)
+# timezone is only used in the two lines below
 console.log "timezone", timezone
 utc_midnight = chart_local_start_hour - timezone
 
-draw_chart = (history, today) ->
+draw_chart = (data) ->
   $("svg").remove()
 
   # http://bl.ocks.org/mbostock/3019563
@@ -122,18 +127,10 @@ draw_chart = (history, today) ->
       .style("text-anchor", "end")
       .text("Work Efficiency")
 
-  # history is a list of views
-  merged = []
-  for view in history
-    for efficiency in view.efficiencies
-      merged.push efficiency
-
-  # merged = merged.concat.apply merged, d3.values(history)
-
   svg.append("g")
     .attr("class", "history")
     .selectAll("circle")
-    .data(merged)
+    .data(data.merged)
     .enter()
     .append("circle")
     .attr(
@@ -150,6 +147,44 @@ draw_chart = (history, today) ->
       .x(xMap)
       .y(yMap)
       .interpolate("monotone")
+
+  svg.append("defs")
+    .append("clipPath")
+    .attr("id", "clip")
+    .append("rect")
+    .attr("width", xScale(data.hours))
+    .attr("height", height + 20)
+    .style("fill", "blue")
+
+  svg.append("g")
+    .attr("class", "today line")
+    .datum(data.today[..]) # no [..]?
+    .append("path")
+    .attr("clip-path", "url(#clip)")
+    .attr("d", line)
+
+  svg.append("text")
+    .attr("class", "pr")
+    .attr("x", 20)
+    .attr("y", 40)
+    .text("PR #{ data.pr }")
+
+histogram_to_efficiencies = (histogram) ->
+  efficiencies = []
+  actual = 0
+  maximum = 0
+  for bin in histogram
+    actual += bin.y
+    maximum += (bin.dx / 60)
+    efficiencies.push (actual / maximum) * 100
+  efficiencies
+
+prepare_data = (history, today) ->
+  # history is a list of views
+  merged = []
+  for view in history
+    for efficiency in view.efficiencies
+      merged.push efficiency
 
   today = today.efficiencies
   # Use most recent time logged? Or current time?
@@ -171,125 +206,105 @@ draw_chart = (history, today) ->
   value = today[Math.floor(hours)]
   mean_pr = mean_percentile_rank values, value
 
-  svg.append("defs")
-    .append("clipPath")
-    .attr("id", "clip")
-    .append("rect")
-    .attr("width", xScale(hours))
-    .attr("height", height + 20)
-    .style("fill", "blue")
+  {merged: merged, today: today, hours: hours, pr: Math.floor mean_pr}
 
-  svg.append("g")
-    .attr("class", "today line")
-    .datum(today[..]) # Math.floor(hours)])
-    .append("path")
-    .attr("clip-path", "url(#clip)")
-    .attr("d", line)
+chart_data = (views, data) ->
+  draw_chart data
+  console.log "WAYPOINT: Drew chart", unixtime_now() - loaded
 
-  svg.append("text")
-    .attr("class", "pr")
-    .attr("x", 20)
-    .attr("y", 40)
-    .text("PR #{ Math.floor mean_pr }")
+  sum = (a) ->
+    total = 0
+    for n in a
+      total += n
+    total
+  total_duration = sum(view.duration for view in views)
+  today_duration = views[views.length - 1].duration
+  $("body").append $("<p>Total: #{ format_seconds total_duration } —
+                         Today: #{ format_seconds today_duration }</p>")
 
-histogram_to_efficiencies = (histogram) ->
-  efficiencies = []
-  actual = 0
-  maximum = 0
-  for bin in histogram
-    actual += bin.y
-    maximum += (bin.dx / 60)
-    efficiencies.push (actual / maximum) * 100
-  efficiencies
+query_succeeded = (doc) ->
+  # A view can be "rolling" or "fixed"
+  # This is a lot easier since keys are guaranteed ascending
+  views = []
+  create_view = ->
+    {"start": null, "points": [], "duration": 0}
+  view = create_view()
+  view_tick = 3600
+  view_width = 24 * view_tick
 
-uptodate = (db) ->
+  for row in doc.rows
+    unixtime = isotime_to_unixtime row.doc._id
+
+    # This is a fixed:24h solution, flooring to local day
+    view_start = (floor_to_day unixtime) + (3600 * utc_midnight)
+    if view.start is null
+      view.start = view_start
+      views.push view
+    else if view.start isnt view_start
+      view = create_view()
+
+    view.duration += row.doc.duration
+    start_minute = floor_to_minute unixtime
+    for minute in [0...row.doc.duration] by 60
+      view.points.push start_minute + minute
+
+  console.log "WAYPOINT: Aggregated views", unixtime_now() - loaded
+
+  for view in views
+    view.finish = view.start + view_width
+
+    bins = []
+    bins.push n for n in [view.start..view.finish] by view_tick
+    histogram = d3.layout.histogram()
+      .bins(bins)(view.points)
+    delete view.points
+    view.efficiencies = histogram_to_efficiencies histogram
+
+  console.log "WAYPOINT: Computed efficiencies", unixtime_now() - loaded
+  current_view = views.pop()
+  data = prepare_data views, current_view
+  root.pf.action views, data
+
+sync_succeeded = (db) ->
   db.allDocs {include_docs: true, ascending: true}, (err, doc) ->
     console.log "WAYPOINT: Queried all documents", unixtime_now() - loaded
     if not err
-      # A view can be "rolling" or "fixed"
-      # This is a lot easier since keys are guaranteed ascending
-      views = []
-      create_view = ->
-        {"start": null, "points": [], "duration": 0}
-      view = create_view()
-      view_tick = 3600
-      view_width = 24 * view_tick
-
-      for row in doc.rows
-        unixtime = isotime_to_unixtime row.doc._id
-
-        # This is a fixed:24h solution, flooring to local day
-        view_start = (floor_to_day unixtime) + (3600 * utc_midnight)
-        if view.start is null
-          view.start = view_start
-          views.push view
-        else if view.start isnt view_start
-          view = create_view()
-
-        view.duration += row.doc.duration
-        start_minute = floor_to_minute unixtime
-        for minute in [0...row.doc.duration] by 60
-          view.points.push start_minute + minute
-
-      console.log "WAYPOINT: Aggregated views", unixtime_now() - loaded
-
-      margin = {top: 10, right: 30, bottom: 30, left: 30}
-      width = 960 - margin.left - margin.right
-      height = 500 - margin.top - margin.bottom
-
-      for view in views
-        # day = view.start
-        view.finish = view.start + view_width
-
-        x = d3.scale.linear()
-          .domain([view.start, view.finish])
-          .range([0, width])
-
-        bins = []
-        bins.push n for n in [view.start..view.finish] by view_tick
-        histogram = d3.layout.histogram()
-          .bins(bins)(view.points)
-        delete view.points
-        view.efficiencies = histogram_to_efficiencies histogram
-
-      console.log "WAYPOINT: Computed efficiencies", unixtime_now() - loaded
-      current_view = views.pop()
-      draw_chart views, current_view
-      console.log "WAYPOINT: Drew chart", unixtime_now() - loaded
-
-      sum = (a) ->
-        total = 0
-        for n in a
-          total += n
-        total
-      total_duration = sum(view.duration for view in views)
-      today_duration = views[views.length - 1].duration
-      $("body").append $("<p>Total: #{ format_seconds total_duration } —
-                             Today: #{ format_seconds today_duration }</p>")
+      query_succeeded doc
     else
       console.log "Sorry, there was an error!"
 
-main = ->
+cors_succeeded = ->
+  # TODO: Both database_name and the server address should be configurable
   database_name = "pf-periods"
-  db = PouchDB(database_name)
+  db = PouchDB database_name
   db.replicate.from("http://127.0.0.1:5984/#{ database_name }", {live: true})
     .on("uptodate", ->
       console.log "WAYPOINT: Replicated remote DB", unixtime_now() - loaded
-      uptodate db
+      sync_succeeded db
     )
 
-$ ->
-  cors_failure = ->
-    $("body").append("<p>You must set up CORS correctly!</p>")
-
+check_cors_setup = (cors_succeeded, cors_failed) ->
+  # TODO: The server address should be configurable
+  # TODO: Non-remote servers should have CORS detection
   $.get("http://127.0.0.1:5984/_config/cors/credentials")
     .done((arg) ->
       text = JSON.parse arg
       if text isnt "true"
-        cors_failure()
+        cors_failed()
       else
-        main()
+        cors_succeeded()
     )
     .fail((arg) ->
-      cors_failure()
+      cors_failed()
     )
+
+root.pf.compute = ->
+  show_cors_error_message = ->
+    $("body").append("<p>You must set up CORS correctly!</p>")
+  check_cors_setup cors_succeeded, show_cors_error_message
+
+# This is a kind of global callback
+root.pf.action = chart_data
+
+# $ ->
+#   pf.compute()
