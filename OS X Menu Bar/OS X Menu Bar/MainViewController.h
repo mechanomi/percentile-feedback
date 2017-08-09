@@ -12,7 +12,7 @@
 @interface MainViewController : NSViewController
 {
     
-    __weak IBOutlet NSTextField *timeLabel;
+    __weak IBOutlet NSTextField *timeLabel, *statusLabel;
     __weak IBOutlet NSButton *addButton, *trackButton;
     
     NSDate *startDate;

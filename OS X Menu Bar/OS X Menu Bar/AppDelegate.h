@@ -9,7 +9,12 @@
 #import <Cocoa/Cocoa.h>
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
+{
+    IBOutlet NSPopover *popover;
+}
 
+@property (strong, nonatomic) NSStatusItem *statusItem;
+@property (assign, nonatomic) BOOL darkModeOn;
 
 @end
 

@@ -27,8 +27,10 @@
     NSURLRequest *request = [NSURLRequest requestWithURL:fileURL];
     [[webView mainFrame] loadRequest:request];
     [[webView mainFrame] reload];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(screenDidSleep) name:@"screenDidSleep" object:NULL];
+    
 }
-
 
 #pragma mark - Time Logging
 
@@ -38,26 +40,49 @@
         if (!trackingTime) {
             [self startLogging:self];
         } else {
-            [self stopLogging:self];
+            [self stopLogging:self dueToSleep:NO];
         }
         trackingTime = !trackingTime;
         addButton.enabled = !addButton.isEnabled;
+        timeLabel.stringValue = @"00:00:00";
     }
 }
 
 - (void)startLogging:(id)sender {
     
-    timeLabel.stringValue = @"00:00:00";
     timer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(updatetimeLabel) userInfo:nil repeats:YES];
     startDate = [NSDate date];
 }
 
-- (void)stopLogging:(id)sender {
+- (void)stopLogging:(id)sender dueToSleep:(BOOL)dueToSleep {
     
     [timer invalidate]; timer = nil;
     NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:startDate];
     [self logPeriod:(int)interval];
     [[webView mainFrame] reload];
+    
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+    dateFormatter.timeStyle = NSDateFormatterMediumStyle;
+    
+    if (dueToSleep) {
+        trackingTime = FALSE;
+        addButton.enabled = TRUE;
+        trackButton.state = 1;
+        
+        statusLabel.stringValue = [NSString stringWithFormat:@"Last session (%@) ended on %@ [computer went to sleep]", stringFromTimeInterval(interval), [dateFormatter stringFromDate:[NSDate date]]];
+    } else {
+        
+        statusLabel.stringValue = [NSString stringWithFormat:@"Last session (%@) ended on %@", stringFromTimeInterval(interval), [dateFormatter stringFromDate:[NSDate date]]];
+    }
+    
+}
+
+- (void)screenDidSleep {
+    if (trackingTime) {
+        [self stopLogging:self dueToSleep:YES];
+    }
 }
 
 
@@ -104,13 +129,19 @@
     addButton.state = 0;
     trackButton.enabled = TRUE;
     timeLabel.editable = FALSE;
+    timeLabel.placeholderString = @"";
+    timeLabel.stringValue = @"00:00:00";
     
     double interval = [timeLabel.stringValue doubleValue];
     if (interval > 0.0) {
         [self logPeriod:(int)interval];
         [[webView mainFrame] reload];
     }
-    timeLabel.stringValue = @"00:00:00";
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    dateFormatter.dateStyle = NSDateFormatterMediumStyle;
+    dateFormatter.timeStyle = NSDateFormatterMediumStyle;
+    statusLabel.stringValue = [NSString stringWithFormat:@"Added %@ on %@", stringFromTimeInterval(interval), [dateFormatter stringFromDate:[NSDate date]]];
 }
 
 
