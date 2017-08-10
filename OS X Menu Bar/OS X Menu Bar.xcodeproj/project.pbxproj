@@ -7,6 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		324AFF5C1F3BF8F80047C1AE /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 324AFF5B1F3BF8F80047C1AE /* MainViewController.m */; };
+		324AFF651F3BF90F0047C1AE /* Icon 16.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF5D1F3BF90F0047C1AE /* Icon 16.png */; };
+		324AFF661F3BF90F0047C1AE /* Icon 32.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF5E1F3BF90F0047C1AE /* Icon 32.png */; };
+		324AFF671F3BF90F0047C1AE /* Icon 64.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF5F1F3BF90F0047C1AE /* Icon 64.png */; };
+		324AFF681F3BF90F0047C1AE /* Icon 128.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF601F3BF90F0047C1AE /* Icon 128.png */; };
+		324AFF691F3BF90F0047C1AE /* Icon 256.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF611F3BF90F0047C1AE /* Icon 256.png */; };
+		324AFF6A1F3BF90F0047C1AE /* Icon 512.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF621F3BF90F0047C1AE /* Icon 512.png */; };
+		324AFF6B1F3BF90F0047C1AE /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF631F3BF90F0047C1AE /* Icon.png */; };
+		324AFF6C1F3BF90F0047C1AE /* Percent Sign.png in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF641F3BF90F0047C1AE /* Percent Sign.png */; };
+		324AFF6F1F3BF94C0047C1AE /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 324AFF6D1F3BF94C0047C1AE /* MainMenu.xib */; };
 		F1A735491F32F3A300571112 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F1A735481F32F3A300571112 /* AppDelegate.m */; };
 		F1A7354C1F32F3A300571112 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F1A7354B1F32F3A300571112 /* main.m */; };
 		F1A7354E1F32F3A300571112 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F1A7354D1F32F3A300571112 /* Assets.xcassets */; };
@@ -20,16 +30,6 @@
 		F1A735A11F3302A800571112 /* plot.js in Resources */ = {isa = PBXBuildFile; fileRef = F1A7359B1F3302A800571112 /* plot.js */; settings = {ASSET_TAGS = (Chart, ); }; };
 		F1A735A31F3302C200571112 /* Clear Time Log.command in Resources */ = {isa = PBXBuildFile; fileRef = F1A735A21F3302C200571112 /* Clear Time Log.command */; settings = {ASSET_TAGS = (Chart, ); }; };
 		F1A735A61F3303BA00571112 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1A735A51F3303BA00571112 /* WebKit.framework */; };
-		F1A7E5F01F353459007D190A /* Icon 16.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5E91F353459007D190A /* Icon 16.png */; };
-		F1A7E5F11F353459007D190A /* Icon 32.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5EA1F353459007D190A /* Icon 32.png */; };
-		F1A7E5F21F353459007D190A /* Icon 64.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5EB1F353459007D190A /* Icon 64.png */; };
-		F1A7E5F31F353459007D190A /* Icon 128.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5EC1F353459007D190A /* Icon 128.png */; };
-		F1A7E5F41F353459007D190A /* Icon 256.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5ED1F353459007D190A /* Icon 256.png */; };
-		F1A7E5F51F353459007D190A /* Icon 512.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5EE1F353459007D190A /* Icon 512.png */; };
-		F1A7E5F61F353459007D190A /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5EF1F353459007D190A /* Icon.png */; };
-		F1A7E5F81F353470007D190A /* Percent Sign.png in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5F71F353470007D190A /* Percent Sign.png */; };
-		F1A7E5FB1F35347B007D190A /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = F1A7E5FA1F35347B007D190A /* MainViewController.m */; };
-		F1A7E5FE1F353525007D190A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = F1A7E5FC1F353525007D190A /* MainMenu.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +50,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		324AFF5A1F3BF8F80047C1AE /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
+		324AFF5B1F3BF8F80047C1AE /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
+		324AFF5D1F3BF90F0047C1AE /* Icon 16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 16.png"; sourceTree = "<group>"; };
+		324AFF5E1F3BF90F0047C1AE /* Icon 32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 32.png"; sourceTree = "<group>"; };
+		324AFF5F1F3BF90F0047C1AE /* Icon 64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 64.png"; sourceTree = "<group>"; };
+		324AFF601F3BF90F0047C1AE /* Icon 128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 128.png"; sourceTree = "<group>"; };
+		324AFF611F3BF90F0047C1AE /* Icon 256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 256.png"; sourceTree = "<group>"; };
+		324AFF621F3BF90F0047C1AE /* Icon 512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon 512.png"; sourceTree = "<group>"; };
+		324AFF631F3BF90F0047C1AE /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		324AFF641F3BF90F0047C1AE /* Percent Sign.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Percent Sign.png"; sourceTree = "<group>"; };
+		324AFF6E1F3BF94C0047C1AE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		F1A735441F32F3A300571112 /* OS X Menu Bar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OS X Menu Bar.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1A735471F32F3A300571112 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		F1A735481F32F3A300571112 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -70,17 +81,6 @@
 		F1A7359B1F3302A800571112 /* plot.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = plot.js; path = ../../plot.js; sourceTree = "<group>"; };
 		F1A735A21F3302C200571112 /* Clear Time Log.command */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "Clear Time Log.command"; sourceTree = "<group>"; };
 		F1A735A51F3303BA00571112 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		F1A7E5E91F353459007D190A /* Icon 16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 16.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 16.png"; sourceTree = "<group>"; };
-		F1A7E5EA1F353459007D190A /* Icon 32.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 32.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 32.png"; sourceTree = "<group>"; };
-		F1A7E5EB1F353459007D190A /* Icon 64.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 64.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 64.png"; sourceTree = "<group>"; };
-		F1A7E5EC1F353459007D190A /* Icon 128.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 128.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 128.png"; sourceTree = "<group>"; };
-		F1A7E5ED1F353459007D190A /* Icon 256.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 256.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 256.png"; sourceTree = "<group>"; };
-		F1A7E5EE1F353459007D190A /* Icon 512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon 512.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon 512.png"; sourceTree = "<group>"; };
-		F1A7E5EF1F353459007D190A /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Icon.png; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Icon.png"; sourceTree = "<group>"; };
-		F1A7E5F71F353470007D190A /* Percent Sign.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Percent Sign.png"; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Percent Sign.png"; sourceTree = "<group>"; };
-		F1A7E5F91F35347B007D190A /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MainViewController.h; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/MainViewController.h"; sourceTree = "<group>"; };
-		F1A7E5FA1F35347B007D190A /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/MainViewController.m"; sourceTree = "<group>"; };
-		F1A7E5FD1F353525007D190A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = "../../../../../../../../Biangle/Desktop/BIANGLE/Development/Projects/Percentile Feedback/OS X Menu Bar/OS X Menu Bar/Base.lproj/MainMenu.xib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,9 +136,9 @@
 				F1A735471F32F3A300571112 /* AppDelegate.h */,
 				F1A735481F32F3A300571112 /* AppDelegate.m */,
 				F1A7354D1F32F3A300571112 /* Assets.xcassets */,
-				F1A7E5F91F35347B007D190A /* MainViewController.h */,
-				F1A7E5FA1F35347B007D190A /* MainViewController.m */,
-				F1A7E5FC1F353525007D190A /* MainMenu.xib */,
+				324AFF5A1F3BF8F80047C1AE /* MainViewController.h */,
+				324AFF5B1F3BF8F80047C1AE /* MainViewController.m */,
+				324AFF6D1F3BF94C0047C1AE /* MainMenu.xib */,
 				F1A735521F32F3A300571112 /* Info.plist */,
 				F1A7354A1F32F3A300571112 /* Supporting Files */,
 			);
@@ -149,14 +149,14 @@
 			isa = PBXGroup;
 			children = (
 				F1A735851F32FC2100571112 /* Chart */,
-				F1A7E5E91F353459007D190A /* Icon 16.png */,
-				F1A7E5EA1F353459007D190A /* Icon 32.png */,
-				F1A7E5EB1F353459007D190A /* Icon 64.png */,
-				F1A7E5EC1F353459007D190A /* Icon 128.png */,
-				F1A7E5ED1F353459007D190A /* Icon 256.png */,
-				F1A7E5EE1F353459007D190A /* Icon 512.png */,
-				F1A7E5EF1F353459007D190A /* Icon.png */,
-				F1A7E5F71F353470007D190A /* Percent Sign.png */,
+				324AFF5D1F3BF90F0047C1AE /* Icon 16.png */,
+				324AFF5E1F3BF90F0047C1AE /* Icon 32.png */,
+				324AFF5F1F3BF90F0047C1AE /* Icon 64.png */,
+				324AFF601F3BF90F0047C1AE /* Icon 128.png */,
+				324AFF611F3BF90F0047C1AE /* Icon 256.png */,
+				324AFF621F3BF90F0047C1AE /* Icon 512.png */,
+				324AFF631F3BF90F0047C1AE /* Icon.png */,
+				324AFF641F3BF90F0047C1AE /* Percent Sign.png */,
 				F1A7354B1F32F3A300571112 /* main.m */,
 			);
 			name = "Supporting Files";
@@ -315,19 +315,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				F1A7354E1F32F3A300571112 /* Assets.xcassets in Resources */,
-				F1A7E5F11F353459007D190A /* Icon 32.png in Resources */,
-				F1A7E5F01F353459007D190A /* Icon 16.png in Resources */,
-				F1A7E5FE1F353525007D190A /* MainMenu.xib in Resources */,
+				324AFF661F3BF90F0047C1AE /* Icon 32.png in Resources */,
+				324AFF651F3BF90F0047C1AE /* Icon 16.png in Resources */,
+				324AFF6F1F3BF94C0047C1AE /* MainMenu.xib in Resources */,
 				F1A735A11F3302A800571112 /* plot.js in Resources */,
 				F1A735A01F3302A800571112 /* jquery.min.js in Resources */,
 				F1A7359E1F3302A800571112 /* data.py in Resources */,
 				F1A7359C1F3302A800571112 /* chart.js in Resources */,
-				F1A7E5F61F353459007D190A /* Icon.png in Resources */,
-				F1A7E5F41F353459007D190A /* Icon 256.png in Resources */,
-				F1A7E5F31F353459007D190A /* Icon 128.png in Resources */,
-				F1A7E5F51F353459007D190A /* Icon 512.png in Resources */,
-				F1A7E5F21F353459007D190A /* Icon 64.png in Resources */,
-				F1A7E5F81F353470007D190A /* Percent Sign.png in Resources */,
+				324AFF6B1F3BF90F0047C1AE /* Icon.png in Resources */,
+				324AFF691F3BF90F0047C1AE /* Icon 256.png in Resources */,
+				324AFF681F3BF90F0047C1AE /* Icon 128.png in Resources */,
+				324AFF6A1F3BF90F0047C1AE /* Icon 512.png in Resources */,
+				324AFF671F3BF90F0047C1AE /* Icon 64.png in Resources */,
+				324AFF6C1F3BF90F0047C1AE /* Percent Sign.png in Resources */,
 				F1A735A31F3302C200571112 /* Clear Time Log.command in Resources */,
 				F1A7359D1F3302A800571112 /* d3.min.js in Resources */,
 				F1A7359F1F3302A800571112 /* index.html in Resources */,
@@ -357,7 +357,7 @@
 			files = (
 				F1A7354C1F32F3A300571112 /* main.m in Sources */,
 				F1A735491F32F3A300571112 /* AppDelegate.m in Sources */,
-				F1A7E5FB1F35347B007D190A /* MainViewController.m in Sources */,
+				324AFF5C1F3BF8F80047C1AE /* MainViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,10 +393,10 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		F1A7E5FC1F353525007D190A /* MainMenu.xib */ = {
+		324AFF6D1F3BF94C0047C1AE /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F1A7E5FD1F353525007D190A /* Base */,
+				324AFF6E1F3BF94C0047C1AE /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
