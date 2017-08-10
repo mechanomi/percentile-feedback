@@ -1,5 +1,7 @@
 # Mac OS X Menu Bar Client
 
+Useful GUI for the Percentile Feedback tool
+
 ## Features
 
 - Displays graph
