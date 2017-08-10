@@ -129,14 +129,15 @@
     addButton.state = 0;
     trackButton.enabled = TRUE;
     timeLabel.editable = FALSE;
-    timeLabel.placeholderString = @"";
-    timeLabel.stringValue = @"00:00:00";
     
     double interval = [timeLabel.stringValue doubleValue];
     if (interval > 0.0) {
         [self logPeriod:(int)interval];
         [[webView mainFrame] reload];
     }
+    
+    timeLabel.placeholderString = @"";
+    timeLabel.stringValue = @"00:00:00";
     
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     dateFormatter.dateStyle = NSDateFormatterMediumStyle;
