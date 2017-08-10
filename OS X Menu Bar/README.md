@@ -1,6 +1,6 @@
 # Mac OS X Menu Bar Client
 
-# Features
+## Features
 
 - Displays graph
 - Track time with built in timer
